@@ -470,7 +470,7 @@ def jouer_video(the_url):
     link = get_cached_content(the_url)
 
     # Obtenir media_uid pure de l'émission
-    media_uid = rechercher_un_element('mediaId=(.+?)&', link)
+    media_uid = rechercher_un_element('"mediaId":"(.+?)"', link)
 
     # Obtenir JSON avec liens RTMP du playlistService
     video_json = simplejson.loads(\
