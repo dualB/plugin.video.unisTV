@@ -62,177 +62,6 @@ def get_cached_content(path):
         return None
     return content
 
-"""
-def cleanup_video_filename(name):
-    name=name.replace('/','_')
-    name=name.replace('\\','_')
-    name=name.replace(':','-')
-    name=name.replace('?','')
-    name=name.replace('"','')
-    name=name.replace('*','')
-    name=name.replace('|','')
-    name=name.replace('<','')
-    name=name.replace('>','')
-    name=name.replace(' ','_')
-    name=name.strip()
-    #name=''.join((c for c in unicodedata.normalize('NFD', name) if unicodedata.category(c) != 'Mn'))
-    return name
-
-def create_video(vid, downloading=False):
-    chosen_protocol = protocol if not downloading else 'HBBTV'
-    chosen_quality = quality if not downloading else download_quality
-
-    data = load_json(video_json.format(id=vid, lang=language[0].upper(), protocol=chosen_protocol))
-    filtered = []
-    video = None
-
-    # we try every quality (starting from the preferred one)
-    # if it is not found, try every other from highest to lowest
-    for q in [quality_map[chosen_quality]] + [i for i in ['SQ', 'EQ', 'HQ', 'MQ'] if i is not quality_map[chosen_quality]]:
-        # vost preferred
-        if prefer_vost:
-            filtered = [item for item in data['videoJsonPlayer']['VSR'].values() if match(item, q, True)]
-        # no vost found or vost not preferred
-        if len(filtered) == 0:
-            filtered = [item for item in data['videoJsonPlayer']['VSR'].values() if match(item, q)]
-        # here len(filtered) sould be 1
-        if len(filtered) == 1:
-            video = filtered[0]
-            break
-    return {
-        'label': data['videoJsonPlayer']['VST']['VNA'] if downloading else None, #data['videoJsonPlayer']['VTI'],
-        'path': video['url'],
-        'thumbnail': data['videoJsonPlayer']['VTU']['IUR']
-    }
-
-def download_file(vid, name):
-    # http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/8d2ae2674d804c05ae79af76d0d30cc2/getPlaylistByMediaId
-    if DOWNLOAD_FOLDER:
-#        video = create_video(vid, True)
-#        filename = vid + '_' + video['label'] + os.extsep + 'mp4'
-
-        # Obtenir media_uid pure de l'émission
-        link = get_cached_content(vid)
-        media_uid = rechercher_un_element('mediaId=(.+?)&', link)
-
-        # Obtenir JSON avec liens RTMP du playlistService
-        video_json = simplejson.loads(\
-            get_cached_content(\
-                'http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % media_uid\
-            )\
-        )
-
-        # Preparer list de videos à jouer
-        playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
-        playlist.clear()
-
-        url=None
-        # Analyser chaque stream disponible pour trouver la meilleure qualité
-        for play_list_item in video_json['playlistItems']:
-            highest_bit_rate = 0
-            stream_url = None
-            for stream in play_list_item['streams']:
-                if stream['videoBitRate'] > highest_bit_rate:
-                    highest_bit_rate = stream['videoBitRate']
-                    stream_url = stream['url']
-
-            if stream_url:
-                # Générer un lien compatible pour librtmp
-                # rtmp_url - play_path - swf_url
-                url_final = '%s playPath=%s swfUrl=%s swfVfy=true' % (\
-                    stream_url[:stream_url.find('mp4')],\
-                    stream_url[stream_url.find('mp4'):],\
-                    'http://s.delvenetworks.com/deployments/flash-player/flash-player-5.10.1.swf?playerForm=Chromeless'\
-                )
-                url=url_final
-
-                item = xbmcgui.ListItem(\
-                    video_json['title'],\
-                    iconImage=video_json['imageUrl'],\
-                    thumbnailImage=video_json['imageUrl']\
-                )
-                playlist.add(url_final, item)
-            else:
-                xbmc.executebuiltin('Notification(%s,Incapable d''obtenir lien du video,5000,%s' % (ADDON_NAME, ADDON_ICON))
-
-        downloader = SimpleDownloader.SimpleDownloader()
-        filename = ""
-        try:
-            filename=cleanup_video_filename(name)
-        except:
-            filename = video_json['title']
-        filename+=".mp4"
-
-        url="rtmp://s2.csl.delvenetworks.com/a4820/l1/mp4:media/fd270a63f224452798612b3c23fab2ca/8d2ae2674d804c05ae79af76d0d30cc2/434c213e818b4578aa49d16404f084d3/07032109.mp4"
-        log("playlist service.: " + 'http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/'+media_uid+'/getPlaylistByMediaId')
-        log("video to download: " + vid)
-        log("video rtmp url ..: " + url)
-        log("local filename ..: " + os.path.join(DOWNLOAD_FOLDER, filename))
-
-        if not os.path.exists(os.path.join(DOWNLOAD_FOLDER, filename)):
-            log('0-')
-            try:
-                # Setup progress dialog and download
-                #self.pDialog = xbmcgui.DialogProgress()
-                #self.pDialog.create('SportsDevil', common.translate(30050), common.translate(30051))
-                log('1-')
-                xbmc.executebuiltin('XBMC.Notificatio(filename, Starting download...)')
-                urllib.urlretrieve(url, os.path.join(DOWNLOAD_FOLDER, filename), video_report_hook)
-                #self.pDialog.close()
-            except IOError:
-                #self.pDialog.close()
-                #common.showError(common.translate(30053))
-                log('2-')        
-                traceback.print_exc()
-                xbmc.executebuiltin('XBMC.Notificatio(filename, IOError)')
-            except KeyboardInterrupt:
-                log('3-')
-                xbmc.executebuiltin('XBMC.Notificatio(filename, KeyboardInterrupt)')
-                #self.pDialog.close()
-#
-#            xbmc.executebuiltin('XBMC.Notificatio(filename, '+ADDON.getLocalizedString(32134)+')')
-            #xbmc.executebuiltin('XBMC.Notificatio(filename, '+ADDON.getLocalizedString(32135)+')')
-            log('4-')
-            xbmc.executebuiltin('XBMC.Notificatio(filename, Ya?!)')
-        else:
-            log('5-')
-            xbmc.executebuiltin('XBMC.Notification(Download:,'+ADDON.getLocalizedString(32138)+')')
-    else:
-        log('6-')
-        xbmc.executebuiltin('XBMC.Notification('+ADDON.getLocalizedString(32137)+', '+ADDON.getLocalizedString(32136)+')')
-
-    log('7-')
-
-def video_report_hook(count, blocksize, totalsize):
-    percent = int(float(count * blocksize * 100) / totalsize)
-    xbmc.executebuiltin('XBMC.Notificatio(filename, '+str(percent)+','+')')
-    #self.pDialog.update(percent, common.translate(30050), common.translate(30051))
-    #if self.pDialog.iscanceled():
-    #    raise KeyboardInterrupt
-
-def downloadVideo(id):
-    downloader = SimpleDownloader.SimpleDownloader()
-    content = getUrl2("http://www.dailymotion.com/embed/video/"+id)
-    match = re.compile('<title>(.+?)</title>', re.DOTALL).findall(content)
-    global downloadDir
-    while not downloadDir:
-        xbmc.executebuiltin('XBMC.Notification(Download:,'+translation(30110)+'!,5000)')
-        addon.openSettings()
-        downloadDir = addon.getSetting("downloadDir")
-    url = getStreamUrl(id)
-    filename = ""
-    try:
-        filename = (''.join(c for c in unicode(match[0], 'utf-8') if c not in '/\\:?"*|<>')).strip()
-    except:
-        filename = id
-    filename+=".mp4"
-    if not os.path.exists(os.path.join(downloadDir, filename)):
-        params = { "url": url, "download_path": downloadDir }
-        downloader.download(filename, params)
-    else:
-        xbmc.executebuiltin('XBMC.Notification(Download:,'+translation(30109)+'!,5000)')
-"""
-
 # Merci à l'auteur de cette fonction
 def unescape_callback(matches):
     """ function docstring """
@@ -512,7 +341,14 @@ def jouer_video(the_url):
             xbmc.executebuiltin('Notification(%s,Incapable d''obtenir lien du video,5000,%s' % (ADDON_NAME, ADDON_ICON))
 
     if playlist.size() > 0:
-        xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(playlist)
+        player = None
+        try:
+            player = xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER)
+        except Exception:
+            player = xbmc.Player()
+            pass
+
+        player.play(playlist)
 
 def get_params():
     """ function docstring """

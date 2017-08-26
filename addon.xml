@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.unisTV"
        name="Unis TV"
-       version="1.0.3"
+       version="1.0.4"
        provider-name="CB, SlySen"
 >
     <requires>
