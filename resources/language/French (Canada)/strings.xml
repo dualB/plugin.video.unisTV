@@ -46,19 +46,6 @@
     <string id="32118">Page</string>
     <string id="32119">de</string>
 
-    <!-- DOWNLOAD -->
-    <!--
-    <string id="32130">Téléchargement</string>
-    <string id="32131">Répertoire de téléchargement</string>
-    <string id="32132">Qualité des vidéos téléchargées</string>
-    <string id="32133">Télécharger la vidéo</string>
-    <string id="32134">Téléchargement...</string>
-    <string id="32135">Téléchargement terminé!</string> 
-    <string id="32136">Erreur</string> 
-    <string id="32137">Veuillez choisir un répertoire de destination dans les paramètres de l'additiel</string> 
-    <string id="32138">Le fichier vidéo ciblé existe déjà</string>
-    -->
-
     <!-- OTHERS -->
     <string id="32103">Divers</string>
     <string id="32104">Mode débogue - Consultez le fichier des logs de Kodi</string>

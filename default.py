@@ -9,7 +9,6 @@
 # vim......: set tabstop=4
 #
 import os, time, urllib, urllib2, re, socket, sys, traceback, xbmcplugin, xbmcaddon, xbmcgui, xbmc, simplejson
-# import SimpleDownloader, unicodedata
 if sys.version >= "2.5":
     from hashlib import md5 as _hash
 else:
@@ -25,9 +24,6 @@ ADDON_IMAGES_BASEPATH = ADDON.getAddonInfo('path')+'/resources/media/images/'
 ADDON_FANART = ADDON.getAddonInfo('path')+'/fanart.jpg'
 RE_HTML_TAGS = re.compile(r'<[^>]+>')
 RE_AFTER_CR = re.compile(r'\n.*')
-
-#DOWNLOAD_FOLDER = str(ADDON.getSetting('download_folder'))
-#DOWNLOAD_QUALITY = int(ADDON.getSetting('download_quality'))
 
 TV5CA_VIDEO_SITE = 'unis.ca'
 TV5CA_BASE_URL = 'http://'+TV5CA_VIDEO_SITE
@@ -164,7 +160,7 @@ def creer_menu_accueil():
             TV5CA_BASE_URL+'/videos?options[sort]=publish_start&options[order]=DESC&options[page]=1',\
             6, ADDON_IMAGES_BASEPATH+'default-folder.png', True\
     )
-    add_dir('[COLOR ffabb904][I]Param%C3%A8tres de l\'additiciel...[/I][/COLOR]',\
+    add_dir('[COLOR ffabb904][I]Param%C3%A8tres de l\'addiciel...[/I][/COLOR]',\
             TV5CA_BASE_URL,\
             99, ADDON_IMAGES_BASEPATH+'default-folder.png', False\
     )

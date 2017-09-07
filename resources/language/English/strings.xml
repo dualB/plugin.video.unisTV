@@ -46,19 +46,6 @@
     <string id="32118">Page</string>
     <string id="32119">of</string>
 
-    <!-- DOWNLOAD -->
-    <!--
-    <string id="32130">Download</string>
-    <string id="32131">Download directory</string>
-    <string id="32132">Download video quality</string>
-    <string id="32133">Download video</string>
-    <string id="32134">Downloading...</string> 
-    <string id="32135">Done downloading</string> 
-    <string id="32136">Error</string> 
-    <string id="32137">Please set a download folder in the settings</string>
-    <string id="32138">Target video file already exists</string>
-    -->
-
     <!-- OTHERS -->
     <string id="32103">Miscellaneous</string>
     <string id="32104">Debug mode - Consult the kodi log file</string>
